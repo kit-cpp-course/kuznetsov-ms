@@ -10,7 +10,7 @@ using namespace std;
 namespace codec
 {
 	// Base class
-	template <typename TypeFrom, typename TypeTo> class Data
+	template <typename TypeTo> class Data
 	{
 	private:
 		vector<TypeTo> data; // Data vector of encoded/decoded data

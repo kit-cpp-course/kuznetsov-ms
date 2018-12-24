@@ -4,7 +4,7 @@
 namespace codec
 {
 	// Child class. It decodes alaw data to pcm data
-	class ALawDecoder :public Data<char, short>
+	class ALawDecoder :public Data<short>
 	{
 	private:
 		static short ALawToPcm(char & alaw); // A-Law decoding algorithm: ALAW(8-bit) to PCM(16-bit)
