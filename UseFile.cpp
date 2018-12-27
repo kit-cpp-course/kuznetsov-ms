@@ -1,84 +1,86 @@
 #include "UseFile.h"
 
-namespace usefile
-{
 	// It returns integer data vector from file
-	vector<int> UseFile::ReadPcm(string & path, bool & check)
+	vector<int> ReadPcm(string & path, bool & check)
 	{
 		vector<int> data;
 		string line;
 		ifstream in(path);
-		if (in.is_open())
+		try
 		{
-			while (getline(in, line))
+			if (in.is_open())
 			{
-				for (int i=0;i<line.length();i++)
+				while (getline(in, line))
 				{
-					if ((i==0 && !isdigit(line[0]) && line[0]!='-')||(i!=0 && !isdigit(line[i])))
+					for (int i = 0; i < line.length(); i++)
 					{
-						check = false;
-						break;
+						if ((i == 0 && !isdigit(line[0]) && line[0] != '-') || (i != 0 && !isdigit(line[i])))
+						{
+							throw "exception: UNCORRECT TYPE OF DATA!";
+						}
 					}
+					data.push_back(atoi(line.c_str()));
 				}
-				if (check == false)
-				{
-					cout << "exception: UNCORRECT TYPE OF DATA!";
-					break;
-				}
-				data.push_back(atoi(line.c_str()));
+				in.close();
 			}
+			else throw "exception: UNCORRECT PATH!";
 		}
-		else
+		catch (const char* ex)
 		{
-			cout << "exception: UNCORRECT PATH!";
+			cout << ex;
 			check = false;
 		}
-		in.close();
+		catch (const std::exception&error)
+		{
+			cout << "exception: ERROR!";
+		}
 		return data;
 	}
 
 	// It returns char data vector from file
-	vector<char> UseFile::ReadALaw(string & path, bool & check)
+	vector<char> ReadALaw(string & path, bool & check)
 	{
 		vector<char> data;
 		string line;
 		ifstream in(path);
-		if (in.is_open())
+		try
 		{
-			while (getline(in, line))
+			if (in.is_open())
 			{
-				if (line.length() > 1)
+				while (getline(in, line))
 				{
-					for (short i = 0; i < line.length(); i++)
+					if (line.length() > 1)
 					{
-						if ((!isdigit(line[i]) && i != 0) || (i == 0 && !isdigit(line[i]) && line[i] != '-'))
+						for (short i = 0; i < line.length(); i++)
 						{
-							check = false;
-							break;
+							if ((!isdigit(line[i]) && i != 0) || (i == 0 && !isdigit(line[i]) && line[i] != '-'))
+							{
+								throw "exception: UNCORRECT TYPE OF DATA!";
+							}
 						}
+						if (atoi(line.c_str()) < CHAR_MIN || atoi(line.c_str()) > CHAR_MAX) throw "exception: UNCORRECT TYPE OF DATA!";
+						data.push_back(atoi(line.c_str()));
 					}
-					if (check==true) if (atoi(line.c_str()) < CHAR_MIN || atoi(line.c_str()) > CHAR_MAX) check = false;
-					if (check == false)
-					{
-						cout << "exception: UNCORRECT TYPE OF DATA!";
-						break;
-					}
-					data.push_back(atoi(line.c_str()));
+					if (line.length() == 1) data.push_back(line[0]);
 				}
-				if (line.length() == 1) data.push_back(line[0]);
 			}
+			else throw "exception: UNCORRECT PATH!";
+			in.close();
 		}
-		else
+		catch (const char* ex)
 		{
-			cout << "exception: UNCORRECT PATH!";
+			cout << ex;
 			check = false;
 		}
-		in.close();
+		catch (const std::exception&error)
+		{
+			cout << "exception: ERROR!";
+		}
 		return data;
 	}
 
 	// It write short data vector to file
-	void UseFile::WriteFile(vector<short> & data, string & path)
+	void WriteFile(vector<short> & data, string & path)
 	{
 		ofstream out(path, ios::app);
 		if (out.is_open())
@@ -89,7 +91,7 @@ namespace usefile
 	}
 
 	// It write char data vector to file
-	void UseFile::WriteFile(vector<char> & data, string & path)
+	void WriteFile(vector<char> & data, string & path)
 	{
 		ofstream out(path, ios::app);
 		if (out.is_open())
@@ -98,4 +100,3 @@ namespace usefile
 		}
 		out.close();
 	}
-}

@@ -1,15 +1,14 @@
 #pragma once
-#include "Codec.h"
+#include "Encoder.h"
 
-namespace codec
+// child class for encoding pcm to 8-bit according to a-law
+class ALawEncoder :public Encoder
 {
-	// Child class. It encodes source pcm data to alaw data
-	class ALawEncoder :public Data<char>
-	{
-	private:
-		static char PcmToAlaw(int & pcm); // A-Law encoding algorithm: PCM(16-bit) to ALAW(8-bit)
-		static vector<char> encode(vector<int> & pcm); // It returns a data vector of encoding (PCM to ALAW)
-	public:
-		ALawEncoder(vector<int> & pcm); // Constructor
-	};
-}
+private:
+	vector<char> alaw; // it contains encoding data
+	vector<char> encode(const vector<int> & pcm) const;
+	char PCM2ALAW(int pcm) const; // an algorithm of encoding
+	vector<char> getData(); // it returns vector of chars
+public:
+	ALawEncoder(const vector<int> & pcm) :alaw(encode(pcm)) {} // constructor
+};

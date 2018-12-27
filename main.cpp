@@ -1,45 +1,81 @@
-#include "Codec.h"
+#include "Encoder.h"
+#include "Decoder.h"
 #include "ALawEncoder.h"
 #include "ALawDecoder.h"
 #include "UseFile.h"
 
-using namespace std;
-using namespace codec;
-using namespace usefile;
+// User should write:
+// as a 1st argument: [Path to ALawCompression.exe file]
+// next arguments user may write as user want
+// for action: act Encode/Decode
+// for input file: in [Path to input file]
+// for output file (it will be created): out [Path to output file]
 
-/*
-  argv[1] - "Encode" or "Decode"
-  argv[2] - path of file of source data
-  argv[3] - path of file of encoded/decoded data
-*/
-int main(int argc, char * argv[])
+int main(int argc,char* argv[])
 {
-	if (argc == 4)
+	bool check = true;
+	string act="", in="", out="";
+	try
 	{
-		bool check = true;
-		string action=argv[1], pathFrom=argv[2], pathTo=argv[3];
-		if (action == "Encode")
+		if (argc<7) throw "exception: NOT ENOUGH INPUT ARGUMENTS OR FLAGS!";
+		if (argc>7) throw "exception: TOO MANY INPUT ARGUMENTS OR FLAGS!";
+		for (short i = 0; i < 6; i++)
 		{
-			vector<int> source = UseFile::ReadPcm(pathFrom, check);
-			if (check == true)
+			string flag = argv[i];
+			if (flag == "act")
 			{
-				ALawEncoder ALAW(source);
-				vector<char> alaw = ALAW.getData();
-				UseFile::WriteFile(alaw, pathTo);
+				act = argv[i + 1];
+			}
+			else
+			{
+				if (flag == "in")
+				{
+					in = argv[i + 1];
+				}
+				else
+				{
+					if (flag == "out")
+					{
+						out = argv[i + 1];
+					}
+				}
 			}
 		}
-		if (action == "Decode")
+		if (act == "" || in == "" || out == "") throw "exception: NOT ENOUGH INPUT ARGUMENTS OR FLAGS!";
+		if (act == "Encode")
 		{
-			vector<char> alaw = UseFile::ReadALaw(pathFrom, check);
+			vector<int> pcm = ReadPcm(in, check);
 			if (check == true)
 			{
-				ALawDecoder SOURCE(alaw);
-				vector<short> source = SOURCE.getData();
-				UseFile::WriteFile(source, pathTo);
+				Encoder *alaw[1];
+				alaw[0] = new ALawEncoder(pcm);
+				vector<char> get_alaw = alaw[0]->getData();
+				WriteFile(get_alaw,out);
 			}
+		}
+		else
+		{
+			if (act == "Decode")
+			{
+				vector<char> alaw = ReadALaw(in, check);
+				if (check == true)
+				{
+					Decoder * pcm[1];
+					pcm[0] = new ALawDecoder(alaw);
+					vector<short> get_pcm = pcm[0]->getData();
+					WriteFile(get_pcm, out);
+				}
+			}
+			else throw "exception: UNCORRECT ARGUMENT OF ACTION!";
 		}
 	}
-	else cout <<endl<< "exception: UNCORRECT NUMBER OF ARGUMENTS!";
-
+	catch (const char* ex)
+	{
+		cout << ex;
+	}
+	catch (const std::exception&error)
+	{
+		cout << "exception: ERROR!";
+	}
 	return 0;
 }
